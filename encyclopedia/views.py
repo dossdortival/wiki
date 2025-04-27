@@ -49,3 +49,25 @@ def search(request):
             "results": results
         })
     
+def new_page(request):
+    if request.method == "POST":
+        form = NewPageForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            content = form.cleaned_data["content"]
+
+            # Check if the entry already exists
+            if title in util.list_entries():
+                return render(request, "encyclopedia/error.html", {
+                    "message": f"Page '{title}' already exists."
+                })
+            else:
+                # Save the new entry
+                util.save_entry(title, content)
+                return redirect(reverse('entry', args=[title]))
+    else:
+        form = NewPageForm()
+
+    return render(request, "encyclopedia/new_page.html", {
+        "form": form
+    })
