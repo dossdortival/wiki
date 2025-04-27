@@ -71,3 +71,24 @@ def new_page(request):
     return render(request, "encyclopedia/new_page.html", {
         "form": form
     })
+
+def edit_page(request, title):
+    if request.method == "POST":
+        form = EditPageForm(request.POST)
+        if form.is_valid():
+            content = form.cleaned_data["content"]
+            # Save the edited entry
+            util.save_entry(title, content)
+            return redirect(reverse('entry', args=[title]))
+    else:
+        content = util.get_entry(title)
+        if content is None:
+            return render(request, "encyclopedia/error.html", {
+                "message": f"Page '{title}' not found."
+            })
+        form = EditPageForm(initial={'title': title, 'content': content})
+
+    return render(request, "encyclopedia/edit_page.html", {
+        "form": form,
+        "title": title
+    })
