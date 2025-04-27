@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django import forms
 import markdown2
+import random
 
 from . import util
 
@@ -92,3 +93,12 @@ def edit_page(request, title):
         "form": form,
         "title": title
     })
+
+def random_page(request):
+    entries = util.list_entries()
+    if not entries:
+        return render(request, "encyclopedia/error.html", {
+            "message": "No entries available."
+        })
+    title = random.choice(entries)
+    return redirect(reverse('entry', args=[title]))
