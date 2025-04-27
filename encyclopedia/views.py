@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django import forms
 import markdown2
 
@@ -35,3 +36,16 @@ def entry(request, title):
         "content": html_content
     })
 
+def search(request):
+    query = request.GET.get("q", "")
+    entries = util.list_entries()
+
+    if query in entries:
+        return redirect(reverse('entry', args=[query]))
+    else:
+        results = [entry for entry in entries if query.lower() in entry.lower()]
+        return render(request, "encyclopedia/search.html", {
+            "query": query,
+            "results": results
+        })
+    
